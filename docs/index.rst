@@ -7,7 +7,7 @@ Welcome to |project| documentation!
    history
 
 
-.. automodule:: skeleton
+.. automodule:: safety-tox
     :members:
     :undoc-members:
     :show-inheritance:
