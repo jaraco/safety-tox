@@ -1,10 +1,33 @@
 import os
+import functools
 import re
 import sys
 import subprocess
 
-import subprocess_tee
-from jaraco.functools import pass_none
+import ubelt
+from jaraco.functools import pass_none, compose
+
+
+class ProcAdapter(dict):
+    """
+    Adapt a ubelt.cmd result to be compatible with subprocess.run.
+    """
+
+    @property
+    def returncode(self):
+        return self['ret']
+
+    @returncode.setter
+    def returncode(self, value):
+        self['ret'] = value
+
+    @property
+    def stdout(self):
+        return self['out']
+
+    @property
+    def stderr(self):
+        return self['err']
 
 
 class Handler:
@@ -13,7 +36,8 @@ class Handler:
 
     @property
     def runner(self):
-        return [subprocess.run, subprocess_tee.run][bool(self.suppressed)]
+        tee_runner = compose(ProcAdapter, functools.partial(ubelt.cmd, tee=True))
+        return [subprocess.run, tee_runner][bool(self.suppressed)]
 
     @pass_none
     def matches(self, output):
